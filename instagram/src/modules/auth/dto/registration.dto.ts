@@ -8,7 +8,7 @@ import {
   IsUrl,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class RegistrationDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

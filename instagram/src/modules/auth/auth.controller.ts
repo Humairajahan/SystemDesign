@@ -8,16 +8,17 @@ import {
   Delete,
 } from '@nestjs/common';
 import { AuthService } from './service/auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { RegistrationDto } from './dto/registration.dto';
 
+@ApiTags('Auth API')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('registration')
+  registration(@Body() registrationDto: RegistrationDto) {
+    return this.authService.registration(registrationDto);
   }
 
   @Get()
@@ -30,10 +31,10 @@ export class AuthController {
     return this.authService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
+  //   return this.authService.update(+id, updateAuthDto);
+  // }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
