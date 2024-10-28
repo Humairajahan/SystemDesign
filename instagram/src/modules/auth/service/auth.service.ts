@@ -4,6 +4,7 @@ import { User } from 'src/modules/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from './jwt.service';
 import { RegistrationDto } from '../dto/registration.dto';
+import { LoginDto } from '../dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,21 @@ export class AuthService {
       currentAge--;
     }
     return currentAge >= 13;
+  }
+
+  // UNIFIED RESPONSE FOR AUTH
+  async unifiedAuthResponse(user: User) {
+    const token: string = this.jwtService.generateToken(user);
+    return {
+      id: user.id,
+      uuid: user.uuid,
+      name: user.name,
+      email: user.email,
+      instaHandle: user.instaHandle,
+      dateOfBirth: user.DOB,
+      token: token,
+      isVerified: user.isVerified,
+    };
   }
 
   async registration(registrationDto: RegistrationDto): Promise<User> {
@@ -71,9 +87,34 @@ export class AuthService {
     return await this.userRepository.save(user);
   }
 
-  // create(createAuthDto: CreateAuthDto) {
-  //   return 'This action adds a new auth';
-  // }
+  async login(loginDto: LoginDto) {
+    const user = await this.userRepository.findOne({
+      where: [
+        { email: loginDto.identifier },
+        { instaHandle: loginDto.identifier },
+      ],
+    });
+
+    if (!user) {
+      throw new HttpException(
+        'Invalid user credentials',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Password Validation
+    const passwordValid = this.jwtService.validatePassword(
+      loginDto.password,
+      user.password,
+    );
+    if (!passwordValid) {
+      throw new HttpException(
+        'Invalid user credential',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return this.unifiedAuthResponse(user);
+  }
 
   findAll() {
     return `This action returns all auth`;
