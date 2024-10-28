@@ -4,12 +4,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { JwtService } from '../auth/service/jwt.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   private userOlderThan13(dob: Date) {
@@ -54,7 +56,7 @@ export class UserService {
       email: createUserDto.email,
       instaHandle: createUserDto.instaHandle,
       DOB: createUserDto.dateOfBirth,
-      password: createUserDto.password,
+      password: this.jwtService.encodePassword(createUserDto.password),
       avatarUrl: createUserDto.avatarUrl,
     });
 
