@@ -51,6 +51,13 @@ export class UserService {
       );
     }
 
+    // Ensure password and confirmPassword fields match
+    const passwordMatched: boolean =
+      createUserDto.password === createUserDto.confirmPassword ? true : false;
+    if (!passwordMatched) {
+      throw new HttpException('Pasword does not match', HttpStatus.BAD_REQUEST);
+    }
+
     const user = this.userRepository.create({
       name: createUserDto.name,
       email: createUserDto.email,
