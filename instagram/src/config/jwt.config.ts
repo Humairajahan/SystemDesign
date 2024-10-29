@@ -5,11 +5,12 @@ export const jwtConfig: JwtModuleAsyncOptions = {
   imports: [ConfigModule],
   inject: [ConfigService],
   useFactory: async (configService: ConfigService) => {
-    console.log(configService.get('APP_SECRET'));
     return {
       global: true,
-      secret: configService.get('APP_SECRET'),
-      signOptions: { expiresIn: configService.get<number>('APP_EXPIRES_IN') },
+      secret: configService.get('JWT_SECRET'),
+      signOptions: {
+        expiresIn: configService.get<number>('JWT_TOKEN_EXPIRES_IN'),
+      },
     };
   },
 };
