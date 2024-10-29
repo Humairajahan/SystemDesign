@@ -27,6 +27,7 @@ export class AuthService {
   // UNIFIED RESPONSE FOR AUTH
   async unifiedAuthResponse(user: User) {
     const token: string = this.jwtService.generateToken(user);
+    const refreshToken: string = this.jwtService.generateRefreshToken(user);
     return {
       id: user.id,
       uuid: user.uuid,
@@ -35,6 +36,7 @@ export class AuthService {
       instaHandle: user.instaHandle,
       dateOfBirth: user.DOB,
       token: token,
+      refreshToken: refreshToken,
       isVerified: user.isVerified,
     };
   }
