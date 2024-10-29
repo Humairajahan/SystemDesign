@@ -5,7 +5,7 @@ import { User } from 'src/modules/user/entities/user.entity';
 
 @Injectable()
 export class JwtService {
-  private readonly jwt: Jwt;
+  constructor(private readonly jwt: Jwt) {}
 
   // Encode Password
   public encodePassword(password: string): string {
