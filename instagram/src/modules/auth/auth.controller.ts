@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './service/auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { RegistrationDto } from './dto/registration.dto';
 import { LoginDto } from './dto/login.dto';
+import { Response } from 'express';
 
 @ApiTags('Auth API')
 @Controller('auth')
@@ -23,8 +25,11 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.login(loginDto, response);
   }
 
   @Get()

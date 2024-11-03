@@ -1,10 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Res } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/modules/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { JwtService } from './jwt.service';
 import { RegistrationDto } from '../dto/registration.dto';
 import { LoginDto } from '../dto/login.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -25,9 +26,21 @@ export class AuthService {
   }
 
   // UNIFIED RESPONSE FOR AUTH
-  async unifiedAuthResponse(user: User) {
+  async unifiedAuthResponse(
+    user: User,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     const token: string = this.jwtService.generateToken(user);
     const refreshToken: string = this.jwtService.generateRefreshToken(user);
+
+    response.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      path: '/',
+    });
+
     return {
       id: user.id,
       uuid: user.uuid,
@@ -36,7 +49,6 @@ export class AuthService {
       instaHandle: user.instaHandle,
       dateOfBirth: user.DOB,
       token: token,
-      refreshToken: refreshToken,
       isVerified: user.isVerified,
     };
   }
@@ -89,7 +101,7 @@ export class AuthService {
     return await this.userRepository.save(user);
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto, response: Response) {
     const user = await this.userRepository.findOne({
       where: [
         { email: loginDto.identifier },
@@ -115,7 +127,7 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return this.unifiedAuthResponse(user);
+    return this.unifiedAuthResponse(user, response);
   }
 
   findAll() {
